@@ -18,13 +18,34 @@ class Task extends Model
     protected $fillable = [
         'uuid',
         'name',
+        'created_at',
+        'updated_at',
     ];
+
+    protected $dates = [
+        'completed_at',
+    ];
+
+    public function scopeIncomplete($query)
+    {
+        $query->whereNull('completed_at');
+    }
+
+    public function scopeCompleted($query)
+    {
+        $query->whereNotNull('completed_at');
+    }
 
     public static function createTaskForUser(User $user, string $taskName): Task
     {
         $taskId = Str::uuid()->toString();
 
-        event(new TaskWasCreated($user, $taskId, $taskName));
+        event(new TaskWasCreated(
+            $user,
+            $taskId,
+            $taskName,
+            now()->toAtomString()
+        ));
 
         return static::findByUuidOrFail($taskId);
     }

@@ -19,10 +19,14 @@ class HomeController extends Controller
     /**
      * Show the application dashboard.
      *
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('home');
+        $tasks = $request->user()->tasks()->incomplete()->latest()->get();
+        $completedTasks = $request->user()->tasks()->completed()->latest('completed_at')->get();
+
+        return view('home', compact('tasks', 'completedTasks'));
     }
 }

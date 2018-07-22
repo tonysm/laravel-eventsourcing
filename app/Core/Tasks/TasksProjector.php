@@ -22,6 +22,7 @@ class TasksProjector implements Projector
         $event->user->tasks()->create([
             'uuid' => $event->taskId,
             'name' => $event->taskName,
+            'created_at' => Carbon::parse($event->createdAt)
         ]);
     }
 
@@ -29,7 +30,12 @@ class TasksProjector implements Projector
     {
         $task = Task::findByUuidOrFail($event->taskId);
 
-        $task->forceFill(['completed_at' => Carbon::parse($event->completedAt)])
+        $completedAt = Carbon::parse($event->completedAt);
+
+        $task->forceFill([
+                'completed_at' => $completedAt,
+                'updated_at' => $completedAt,
+            ])
             ->save();
     }
 
@@ -37,7 +43,15 @@ class TasksProjector implements Projector
     {
         $task = Task::findByUuidOrFail($event->taskId);
 
-        $task->forceFill(['completed_at' => null])
+        $task->forceFill([
+                'completed_at' => null,
+                'updated_at' => Carbon::parse($event->date),
+            ])
             ->save();
+    }
+
+    public function resetState()
+    {
+        Task::truncate();
     }
 }
