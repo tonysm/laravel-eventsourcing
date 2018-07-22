@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Core\Tasks\TaskContext;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -22,10 +23,10 @@ class HomeController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, TaskContext $taskContext)
     {
-        $tasks = $request->user()->tasks()->incomplete()->latest()->get();
-        $completedTasks = $request->user()->tasks()->completed()->latest('completed_at')->get();
+        $tasks = $taskContext->getIncompleteTasksForUser($request->user()->id);
+        $completedTasks = $taskContext->getCompletedTasksForUser($request->user()->id);
 
         return view('home', compact('tasks', 'completedTasks'));
     }

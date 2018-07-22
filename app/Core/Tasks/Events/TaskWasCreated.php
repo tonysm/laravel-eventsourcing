@@ -11,9 +11,9 @@ class TaskWasCreated implements ShouldBeStored
     use SerializesModels;
 
     /**
-     * @var User
+     * @var int
      */
-    public $user;
+    public $userId;
 
     /**
      * @var string
@@ -33,14 +33,14 @@ class TaskWasCreated implements ShouldBeStored
     /**
      * Create a new event instance.
      *
-     * @param User $user
+     * @param int $userId
      * @param string $taskId
      * @param string $taskName
      * @param string $createdAt
      */
-    public function __construct(User $user, string $taskId, string $taskName, string $createdAt)
+    public function __construct(int $userId, string $taskId, string $taskName, string $createdAt)
     {
-        $this->user = $user;
+        $this->userId = $userId;
         $this->taskId = $taskId;
         $this->taskName = $taskName;
         $this->createdAt = $createdAt;

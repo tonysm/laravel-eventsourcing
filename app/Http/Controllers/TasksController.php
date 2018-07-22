@@ -4,12 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Core\Tasks\Task;
 use Illuminate\Http\Request;
+use App\Core\Tasks\TaskContext;
 
 class TasksController extends Controller
 {
-    public function __construct()
+    /**
+     * @var TaskContext
+     */
+    private $taskContext;
+
+    public function __construct(TaskContext $taskContext)
     {
         $this->middleware('auth');
+        $this->taskContext = $taskContext;
     }
 
     public function create()
@@ -23,7 +30,10 @@ class TasksController extends Controller
             'taskName' => ['required', 'string', 'min:1'],
         ]);
 
-        Task::createTaskForUser($request->user(), $request->input('taskName'));
+        $this->taskContext->createTask(
+            $request->user()->id,
+            $request->input('taskName')
+        );
 
         return redirect()
             ->route('home')
@@ -32,9 +42,9 @@ class TasksController extends Controller
 
     public function update(Task $task, Request $request)
     {
-        abort_if($task->user->isNot($request->user()), 404);
+        abort_if($task->user_id !== $request->user()->id, 404);
 
-        $task->markAsIncomplete();
+        $this->taskContext->undoTaskCompleted($task->uuid);
 
         return redirect()
             ->route('home')
@@ -43,9 +53,9 @@ class TasksController extends Controller
 
     public function destroy(Task $task, Request $request)
     {
-        abort_if($task->user->isNot($request->user()), 404);
+        abort_if($task->user_id !== $request->user()->id, 404);
 
-        $task->markAsCompleted();
+        $this->taskContext->completeTask($task->uuid);
 
         return redirect()
             ->route('home')

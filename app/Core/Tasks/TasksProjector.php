@@ -2,6 +2,7 @@
 
 namespace App\Core\Tasks;
 
+use App\User;
 use App\Core\Tasks\Events;
 use Illuminate\Support\Carbon;
 use Spatie\EventProjector\Projectors\Projector;
@@ -17,37 +18,35 @@ class TasksProjector implements Projector
         Events\TaskWasMarkedAsIncomplete::class => 'onTaskWasMarkedAsIncomplete',
     ];
 
+    /**
+     * @var TasksRepository
+     */
+    private $tasks;
+
+    public function __construct(TasksRepository $tasks)
+    {
+        $this->tasks = $tasks;
+    }
+
     public function onTaskWasCreated(Events\TaskWasCreated $event)
     {
-        $event->user->tasks()->create([
-            'uuid' => $event->taskId,
-            'name' => $event->taskName,
-            'created_at' => Carbon::parse($event->createdAt)
-        ]);
+        $user = User::findOrFail($event->userId);
+
+        $this->tasks->createForUser($user, $event->taskId, $event->taskName, Carbon::parse($event->createdAt));
     }
 
     public function onTaskWasCompleted(Events\TaskWasCompleted $event)
     {
-        $task = Task::findByUuidOrFail($event->taskId);
+        $task = $this->tasks->findByUuid($event->taskId);
 
-        $completedAt = Carbon::parse($event->completedAt);
-
-        $task->forceFill([
-                'completed_at' => $completedAt,
-                'updated_at' => $completedAt,
-            ])
-            ->save();
+        $this->tasks->markAsComplete($task, Carbon::parse($event->completedAt));
     }
 
     public function onTaskWasMarkedAsIncomplete(Events\TaskWasMarkedAsIncomplete $event)
     {
-        $task = Task::findByUuidOrFail($event->taskId);
+        $task = $this->tasks->findByUuid($event->taskId);
 
-        $task->forceFill([
-                'completed_at' => null,
-                'updated_at' => Carbon::parse($event->date),
-            ])
-            ->save();
+        $this->tasks->markAsIncomplete($task, Carbon::parse($event->date));
     }
 
     public function resetState()
