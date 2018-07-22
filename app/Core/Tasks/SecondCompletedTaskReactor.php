@@ -3,7 +3,6 @@
 namespace App\Core\Tasks;
 
 use App\Core\Tasks\Events;
-use App\Notifications\SecondCompletedTask;
 use Spatie\EventProjector\EventHandlers\EventHandler;
 use Spatie\EventProjector\EventHandlers\HandlesEvents;
 
@@ -19,8 +18,8 @@ class SecondCompletedTaskReactor implements EventHandler
     {
         $task = Task::findByUuidOrFail($event->taskId);
 
-        if ($task->user->tasks()->completed()->count() === 2) {
-            $task->user->notify(new SecondCompletedTask());
+        if (is_null($task->user->second_completed_task_at) && $task->user->tasks()->completed()->count() === 2) {
+            $task->user->sendCongratulationsOnSecondTask();
         }
     }
 }

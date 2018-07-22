@@ -3,8 +3,9 @@
 namespace App;
 
 use App\Core\Tasks\Task;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
+use App\Notifications\SecondCompletedTask;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
@@ -29,8 +30,19 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
+    protected $dates = [
+        'second_completed_task_at',
+    ];
+
     public function tasks() : HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function sendCongratulationsOnSecondTask()
+    {
+        $this->notify(new SecondCompletedTask());
+
+        $this->forceFill(['second_completed_task_at' => now()])->save();
     }
 }
