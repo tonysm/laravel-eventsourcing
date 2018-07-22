@@ -9,7 +9,7 @@ can derive what the current state of the application is by replaying all events 
 - Clone the repository
 - Copy the `.env.example` to `.env`
 - Run composer and yarn `composer install && yarn && yarn dev`
-- Change the `DB_*` env keys there to your desired database
+- Change the `DB_*` and `MAIL_*` env keys there to your desired database
 - Generate the app master key with `php artisan key:generate`
 - Migrate `php artisan migrate`
 - Access [http://localhost:8000](http://localhost:8000)
