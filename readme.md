@@ -1,7 +1,7 @@
 # Laravel Event-Sourcing demo application
 
 Event Sourcing is a pattern that suggests a different approach to handle state. To keep it short, instead of storing
-the current state in the database, you store every single event about what the user did in your application, and you
+the current state in the database, you store every single event that happened in your application/domain, and you
 can derive what the current state of the application is by replaying all events that have happened.
 
 ## Setup
