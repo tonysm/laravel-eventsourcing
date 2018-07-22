@@ -14,7 +14,7 @@ can derive what the current state of the application is by replaying all events 
 - Migrate `php artisan migrate`
 - Access [http://localhost:8000](http://localhost:8000)
 - Register and Play around with todos
-- When you have a few tasks, truncate the `tasks` table and run `php artisan event-projector:rebuild` and answer `yes` to the prompted question
+- When you have a few tasks, truncate the `tasks` table, run `php artisan event-projector:rebuild`, and answer `yes` to the prompted question
 - You should see your application still has the same data at the same state as before.
 
 ## Important aspects
